@@ -1,2 +1,2 @@
-#Python CHIP-8 Emulator
+# Python CHIP-8 Emulator
 Work in progress!
