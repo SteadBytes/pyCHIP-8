@@ -3,7 +3,6 @@
 import chip8
 import sys
 import pygame
-from pygame import gfxdraw, Rect
 import time
 pygame.init()
 
@@ -20,9 +19,14 @@ def main(program):
     pixels = width * height
     # Actual window size=10xlarger than 64x32
     # pygame display takes tuple of width,height
-    screenSize = (width * 10, height * 10)
+    scale_factor = 10
+    screenSize = (width * scale_factor, height * scale_factor)
 
+    # Setup display
+    icon = pygame.image.load("res/icon.gif")
+    pygame.display.set_icon(icon)
     screen = pygame.display.set_mode(screenSize)
+    pygame.display.set_caption("pyCHIP-8")
 
     initGraphics(screen)
 
@@ -46,10 +50,11 @@ def main(program):
             op_count += 1
 
             if chip_8.draw_flag:
-                drawGraphics(screen, colours, chip_8, width, height)
+                drawGraphics(screen, colours, chip_8,
+                             width, height, scale_factor)
 
-            allEvents = pygame.event.get()
-            key_events(allEvents, keys, chip_8)
+            all_events = pygame.event.get()
+            key_events(all_events, keys, chip_8)
 
 
 def initGraphics(screen):
@@ -57,16 +62,14 @@ def initGraphics(screen):
     screen.fill((0, 0, 0))
 
 
-def drawGraphics(screen, colors, chip_8, width, height):
+def drawGraphics(screen, colors, chip_8, width, height, scale_factor):
     for x in range(0, width):
         for y in range(0, height):
             # Actual window size upscaled 10x
-            rect = Rect(x * 10, y * 10, 10, 10)
-            colorIndex = chip_8.graphics[x + (y * width)]
-            screen.fill(colors[colorIndex], rect)
-
-            # screen.fill(colors[chip_8.graphics[x + (y * width)]],
-            #             Rect(x * 10, y * 10, 10, 10))
+            rect = pygame.Rect(x * scale_factor, y *
+                               scale_factor, scale_factor, scale_factor)
+            color_index = chip_8.graphics[x + (y * width)]
+            screen.fill(colors[color_index], rect)
 
     pygame.display.flip()  # Update screen
     chip_8.draw_flag = False
@@ -85,8 +88,8 @@ def key_events(events, keys, chip_8):
         if key_event == 0 or key_event == 1:
             if event.key in keys:
                 # Get location of key in keys array
-                keyIndex = keys.index(event.key)
-                chip_8.keys[keyIndex] = key_event
+                key_index = keys.index(event.key)
+                chip_8.keys[key_index] = key_event
 
 
 if __name__ == "__main__":

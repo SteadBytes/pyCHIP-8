@@ -2,7 +2,7 @@
 
 from random import randint, seed
 import sys
-from time import time
+import time
 
 # Python Chip-8 emulator
 
@@ -44,7 +44,7 @@ class Chip8:
         self.keys = [0] * 16  # CHIP-8 has 16key hex keyboard input
 
         # Timer for emulating 60Hz timer operation
-        self.prev_time = time()
+        self.prev_time = time.time()
 
         # Reset timers
         self.delay_timer = 0
@@ -68,8 +68,10 @@ class Chip8:
         # Must be merged to create the single 2 byte Opcode
         self.opcode = self.memory[self.pc] << 8 | self.memory[self.pc + 1]
 
-        print(hex(self.opcode))
-        print(hex(self.pc))
+        # debugging
+        # print(hex(self.opcode))
+        # print(hex(self.pc))
+
         # Decode Opcode:READ FIRST 4 BITS (opcode & 0xF000)
 
         # Get X and Y values from opcode for setting V register
@@ -280,19 +282,6 @@ class Chip8:
 
             # Next instruction starts 2 locations after first (1 byte each loc)
         self.pc += 2
-
-        # Update Timers
-
-        # current_time = time()
-        # if current_time - self.prev_time >= 1.0 / 60:
-        #     if self.delay_timer > 0:
-        #         self.delay_timer -= 1
-        #
-        #     if self.sound_timer > 0:
-        #         sys.stdout.write("\a")  # ASCII Bell
-        #         self.sound_timer -= 1
-        #
-        #     self.prev_time = current_time
 
 
 if __name__ == "__main__":
