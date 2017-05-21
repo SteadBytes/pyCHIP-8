@@ -1,5 +1,5 @@
 # pyCHIP-8
-Python3 emulator for the COSMAC ELF CHIP-8 interpreter
+COSMAC ELF CHIP-8 interpreter emulator for Python3
 
 ## Usage
 Pass binary ROM to run as first argument in terminal:
