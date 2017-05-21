@@ -282,3 +282,8 @@ class Chip8:
                 self.sound_timer -= 1
 
             self.prev_time = current_time
+
+
+if __name__ == "__main__":
+    from main import main
+    main()
