@@ -3,8 +3,7 @@ Python3 emulator for the COSMAC ELF CHIP-8 interpreter
 
 ## Usage
 Pass binary ROM to run as first argument in terminal:
-```$ python main.py "path_to_ROM"```
-
+ `$ python main.py "path_to_ROM"`
 ## Key Mapping
 ```
 CHIP-8      --->    pyCHIP-8
