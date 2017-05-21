@@ -283,16 +283,16 @@ class Chip8:
 
         # Update Timers
 
-        current_time = time()
-        if current_time - self.prev_time >= 1.0 / 60:
-            if self.delay_timer > 0:
-                self.delay_timer -= 1
-
-            if self.sound_timer > 0:
-                sys.stdout.write("\a")  # ASCII Bell
-                self.sound_timer -= 1
-
-            self.prev_time = current_time
+        # current_time = time()
+        # if current_time - self.prev_time >= 1.0 / 60:
+        #     if self.delay_timer > 0:
+        #         self.delay_timer -= 1
+        #
+        #     if self.sound_timer > 0:
+        #         sys.stdout.write("\a")  # ASCII Bell
+        #         self.sound_timer -= 1
+        #
+        #     self.prev_time = current_time
 
 
 if __name__ == "__main__":

@@ -4,7 +4,7 @@ import chip8
 import sys
 import pygame
 from pygame import gfxdraw, Rect
-
+import time
 pygame.init()
 
 
@@ -29,13 +29,27 @@ def main(program):
     chip_8.initialize(pixels)
     chip_8.loadProgram(program)
 
+    cycle_start_time = time.time()
+    opcode_frequency = 10
+    op_count = 0
     while True:
-        chip_8.emulateCycle()
-        if chip_8.draw_flag:
-            drawGraphics(screen, colours, chip_8, width, height)
+        if time.time() - cycle_start_time > 1 / 60:
+            cycle_start_time = time.time()
+            op_count = 0
+            if chip_8.delay_timer > 0:
+                chip_8.delay_timer -= 1
+            if chip_8.sound_timer > 0:
+                sys.stdout.write("\a")  # ASCII Bell
+                chip_8.sound_timer -= 1
+        if op_count <= opcode_frequency:
+            chip_8.emulateCycle()
+            op_count += 1
 
-        allEvents = pygame.event.get()
-        key_events(allEvents, keys, chip_8)
+            if chip_8.draw_flag:
+                drawGraphics(screen, colours, chip_8, width, height)
+
+            allEvents = pygame.event.get()
+            key_events(allEvents, keys, chip_8)
 
 
 def initGraphics(screen):
