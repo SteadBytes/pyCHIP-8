@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import random
+import sys
+from time import time
 
 # Python Chip-8 emulator
 
@@ -41,6 +43,9 @@ class Chip8:
         self.memory = [0] * 4096
         self.keys = [0] * 16  # CHIP-8 has 16key hex keyboard input
 
+        # Timer for emulating 60Hz timer operation
+        self.prev_time = time()
+
         # Reset timers
         self.delay_timer = 0
         self.sound_timer = 0
@@ -51,8 +56,6 @@ class Chip8:
         # Load fontset, stored up to location 0x50==80
         for i in range(80):
             self.memory[i] = self.fontset[i]
-
-        # reset timers
 
     def loadProgram(self, file_name):
         with open(file_name, "rb") as file
@@ -269,5 +272,13 @@ class Chip8:
 
         # Update Timers
 
-    def setKeys():
-        pass
+        current_time = time()
+        if current_time - self.prev_time >= 1.0 / 60:
+            if self.delay_timer >= 0:
+                self.delay_timer -= 1
+
+            if self.sound_timer >= 0:
+                sys.stdout.write("\a")  # ASCII Bell
+                self.sound_timer -= 1
+
+            self.prev_time = current_time
