@@ -14,6 +14,6 @@ CHIP-8      --->    pyCHIP-8
 A 0 B F     --->    Z X C V
 ```
 ## Resources
-* [David Winter's]("http://www.pong-story.com/chip8/") game ROMS
-* [CHIP-8 Wikipedia]("https://en.wikipedia.org/wiki/CHIP-8#Virtual_machine_description")
-* Great CHIP-8 emulation tips [from multigesture]("http://www.multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter/")
+* [David Winter's](http://www.pong-story.com/chip8/) game ROMS
+* [CHIP-8 Wikipedia](https://en.wikipedia.org/wiki/CHIP-8#Virtual_machine_description)
+* Great CHIP-8 emulation tips [from multigesture](http://www.multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter/)
