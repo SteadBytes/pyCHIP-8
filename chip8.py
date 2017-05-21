@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import random
+from random import randint, seed
 import sys
 from time import time
 
@@ -8,28 +8,28 @@ from time import time
 
 
 class Chip8:
-    def __init__():
+    def __init__(self):
+
         # Define fontset, each character is 4*5 pixels
-        self.fontset = [
-            0xF0, 0x90, 0x90, 0x90, 0xF0,  # 0
-            0x20, 0x60, 0x20, 0x20, 0x70,  # 1
-            0xF0, 0x10, 0xF0, 0x80, 0xF0,  # 2
-            0xF0, 0x10, 0xF0, 0x10, 0xF0,  # 3
-            0x90, 0x90, 0xF0, 0x10, 0x10,  # 4
-            0xF0, 0x80, 0xF0, 0x10, 0xF0,  # 5
-            0xF0, 0x80, 0xF0, 0x90, 0xF0,  # 6
-            0xF0, 0x10, 0x20, 0x40, 0x40,  # 7
-            0xF0, 0x90, 0xF0, 0x90, 0xF0,  # 8
-            0xF0, 0x90, 0xF0, 0x10, 0xF0,  # 9
-            0xF0, 0x90, 0xF0, 0x90, 0x90,  # A
-            0xE0, 0x90, 0xE0, 0x90, 0xE0,  # B
-            0xF0, 0x80, 0x80, 0x80, 0xF0,  # C
-            0xE0, 0x90, 0x90, 0x90, 0xE0,  # D
-            0xF0, 0x80, 0xF0, 0x80, 0xF0,  # E
-            0xF0, 0x80, 0xF0, 0x80, 0x80,  # F
-        ]
+        self.fontset = [0xF0, 0x90, 0x90, 0x90, 0xF0,
+                        0x20, 0x60, 0x20, 0x20, 0x70,
+                        0xF0, 0x10, 0xF0, 0x80, 0xF0,
+                        0xF0, 0x10, 0xF0, 0x10, 0xF0,
+                        0x90, 0x90, 0xF0, 0x10, 0x10,
+                        0xF0, 0x80, 0xF0, 0x10, 0xF0,
+                        0xF0, 0x80, 0xF0, 0x90, 0xF0,
+                        0xF0, 0x10, 0x20, 0x40, 0x40,
+                        0xF0, 0x90, 0xF0, 0x90, 0xF0,
+                        0xF0, 0x90, 0xF0, 0x10, 0xF0,
+                        0xF0, 0x90, 0xF0, 0x90, 0x90,
+                        0xE0, 0x90, 0xE0, 0x90, 0xE0,
+                        0xF0, 0x80, 0x80, 0x80, 0xF0,
+                        0xE0, 0x90, 0x90, 0x90, 0xE0,
+                        0xF0, 0x80, 0xF0, 0x80, 0xF0,
+                        0xF0, 0x80, 0xF0, 0x80, 0x80]
 
     def initialize(self, pixels):
+        seed()
         self.pc = 0x200  # Program counter starts at 0x200
         opcode = 0
         I = 0  # Index register
@@ -58,16 +58,18 @@ class Chip8:
             self.memory[i] = self.fontset[i]
 
     def loadProgram(self, file_name):
-        with open(file_name, "rb") as file
-        fileBuffer = file.read()
-        for i in range(len(fileBuffer)):
-            self.memory[self.pc + i] = fileBuffer[i]
+        with open(file_name, "rb") as f:
+            fileBuffer = f.read()
+            for i in range(len(fileBuffer)):
+                self.memory[self.pc + i] = fileBuffer[i]
 
-    def emulateCycle():
+    def emulateCycle(self):
         # Fetch Opcode - stored in 2 successive 1 byte memory locations
         # Must be merged to create the single 2 byte Opcode
-        self.opcode = self.memory[pc] << 8 | self.memory[pc + 1]
+        self.opcode = self.memory[self.pc] << 8 | self.memory[self.pc + 1]
 
+        print(hex(self.opcode))
+        print(hex(self.pc))
         # Decode Opcode:READ FIRST 4 BITS (opcode & 0xF000)
 
         # Get X and Y values from opcode for setting V register
@@ -76,19 +78,19 @@ class Chip8:
         vy = (self.opcode & 0x00F0) >> 4
 
         if (self.opcode & 0xF000 == 0x0000):
-            if (self.opcode & 0x000F == 0x0000):  # 0x00EO: Clears the screen
+            if (self.opcode == 0x00E0):  # 0x00EO: Clears the screen
                 for i in range(len(self.graphics)):
                     self.graphics[i] = 0
                 self.draw_flag = True
 
-            elif(self.opcode & 0x000F == 0x000E):  # 0x00EE: Returns from subroutine
+            elif(self.opcode == 0x00EE):  # 0x00EE: Returns from subroutine
                 self.pc = self.stack.pop()
 
-                elif(self.opcode & 0x0F00 != 0x0000):  # 0x0NNN
-                    self.pc = (self.opcode & 0x0FFF) - 2
+            elif(self.opcode & 0x0F00 != 0x0000):  # 0x0NNN
+                self.pc = (self.opcode & 0x0FFF) - 2
 
             else:
-                print("Opcode unknown [0x0000]: %s" % opcode)
+                print("Opcode unknown [0x0000]: %s" % self.opcode)
                 self.pc -= 2
 
         elif (self.opcode & 0xF000 == 0x1000):  # 0x1NNN: Jumps to address at NNN
@@ -113,8 +115,10 @@ class Chip8:
         elif (self.opcode & 0xF000 == 0x6000):  # 0x6XNN: Set VX to NN
             self.V[vx] = self.opcode & 0x00FF
 
-        elif (self.opcode & 0xF000 == 0x7000):  # 0x5XY0: Add NN to VX
-            self.V[vx] = self.opcode & 0x00FF
+        elif (self.opcode & 0xF000 == 0x7000):  # 0x7XNN: Add NN to VX
+            nn = self.opcode & 0x00FF
+            self.V[vx] += nn
+            self.V[vx] &= 0xFF
 
         elif (self.opcode & 0xF000 == 0x8000):  # 0x8---
             first_bit = self.opcode & 0x000F
@@ -134,7 +138,7 @@ class Chip8:
             elif (first_bit == 0x0004):  # 0x8XY4: Add VY to VX
                 # VF set to 1 if carry, 0 if no carry
                 self.V[vx] += self.V[vy]
-                if V[vx] > 0xFF:  # greater than 255 = carry
+                if self.V[vx] > 0xFF:  # greater than 255 = carry
                     self.V[0xF] = 1  # set carry
                 else:
                     self.V[0xF] = 0
@@ -143,7 +147,7 @@ class Chip8:
             elif (first_bit == 0x0005):  # 0x8XY5: VY subtract from VX
                 # VF set to 0 if borrow, 1 if no borrow
                 self.V[vx] -= self.V[vy]
-                if V[vx] < self.V[vy]:
+                if self.V[vx] < self.V[vy]:
                     self.V[0xF] = 0  # set borrow
                 else:
                     self.V[0xF] = 1
@@ -168,6 +172,8 @@ class Chip8:
                 # VF set to value of MOST significant bit of VX BEFORE Shifts
                 self.V[0xF] = self.V[vx] & 0x80
                 self.V[vx] = self.V[vx] << 1
+            else:
+                self.pc -= 2
 
         elif (self.opcode & 0xF000 == 0x9000):  # 0x9XY0: Skips next instruction if VX != VY
             if (self.V[vx] != self.V[vy]):
@@ -183,21 +189,22 @@ class Chip8:
         elif (self.opcode & 0xF000 == 0xC000):  # 0xCXNN:
             # Sets VX to result of bitwise AND on random number(0,255) and NN
             nn = self.opcode & 0x00FF
-            rand = random.uniform(0, 255)
-            self.V[vx] = nn & rand
+            rand = randint(0, 0xFF)
+            self.V[vx] = rand & nn
 
         elif (self.opcode & 0xF000 == 0xD000):  # 0xDXYN:
             # Draws sprite at coord(VX,VY) width=8 height=N
             # VF set to 1 if any screen pixels are flipped from set->unset
             # VF set to 0 if not
-            x_loc = vx
-            y_loc = vy
+            x_loc = self.V[vx]
+            y_loc = self.V[vy]
             height = self.opcode & 0x000F
             self.V[0xF] = 0
             pixel = 0
-            for y in range(0, height):
+            for y in range(height):
                 pixel = self.memory[self.I + y]
-                for x in range(0, 8):  # sprites are 8px wide
+                for x in range(8):  # sprites are 8px wide
+                    i = x_loc + x + ((y + y_loc) * 64)
                     if pixel & (0x80 >> x) != 0 and not(y + y_loc >= 32 or x + x_loc >= 64):
                         if self.graphics[i] == 1:
                             self.V[0xf] = 1
@@ -216,6 +223,8 @@ class Chip8:
                 key = self.V[vx]
                 if self.keys[key] == 0:
                     self.pc += 2
+            else:
+                self.pc -= 2
 
         elif(self.opcode & 0xF000 == 0xF000):  # 0xF---
             first_two_bits = self.opcode & 0x00FF
@@ -223,7 +232,7 @@ class Chip8:
             if(first_two_bits == 0x0007):  # 0xFX07: Sets VX to val of delay timer
                 self.V[vx] = self.delay_timer
 
-            if(first_two_bits == 0x000A):  # 0xFX0A: Key press awaited then stored in VX
+            elif(first_two_bits == 0x000A):  # 0xFX0A: Key press awaited then stored in VX
                 key = -1
                 for i in range(len(self.keys)):
                     if self.keys[i] == 1:
@@ -233,35 +242,37 @@ class Chip8:
                     self.V[vx] = key
                 else:
                     self.pc -= 2
-            if(first_two_bits == 0x0015):  # 0xFX15: Sets delay timer to VX
+            elif(first_two_bits == 0x0015):  # 0xFX15: Sets delay timer to VX
                 self.delay_timer = self.V[vx]
-            if(first_two_bits == 0x0018):  # 0xFX18: Sets sound timer to VX
+            elif(first_two_bits == 0x0018):  # 0xFX18: Sets sound timer to VX
                 self.sound_timer = self.V[vx]
-            if(first_two_bits == 0x001E):  # 0xFX1E: Adds VX to I
+            elif(first_two_bits == 0x001E):  # 0xFX1E: Adds VX to I
                 self.I += self.V[vx]
-            if(first_two_bits == 0x0029):  # 0xFX29
+            elif(first_two_bits == 0x0029):  # 0xFX29
                 #: Sets I to loc of sprite for character in VX (0-F character hex, 4x5 font)
                 self.I = self.V[vx] * 5  # Sprites are 5 bytes long
-            if(first_two_bits == 0x0033):  # 0xFX33:Stores binary coded decimal representation of VX
+            elif(first_two_bits == 0x0033):  # 0xFX33:Stores binary coded decimal representation of VX
                 # Most significant digits at addr in I (hundreds)
                 # Middle digit at addr in I+1 (tens)
                 # Least significant digit at addr I+2 (ones)
 
-                self.memory[I] = vx / 100
-                self.memory[I + 1] = (vx / 10) % 10
-                self.memory[I + 2] = (vx % 100) % 10
+                self.memory[self.I] = self.V[vx] // 100
+                self.memory[self.I + 1] = (self.V[vx] // 10) % 10
+                self.memory[self.I + 2] = (self.V[vx] % 100) % 10
 
-            if(first_two_bits == 0x0055):  # 0xFX55
+            elif(first_two_bits == 0x0055):  # 0xFX55
                 # Stores V0 to VX (incl VX) in memory starting at addr I
 
                 for i in range(0, vx + 1):
                     self.memory[self.I + i] = self.V[i]
 
-            if(first_two_bits == 0x0065):  # 0xFX65
+            elif(first_two_bits == 0x0065):  # 0xFX65
                 # Fill V0 to VX(incl VX)w/values from memory starting at addr I
 
                 for i in range(0, vx + 1):
                     self.V[i] = self.memory[self.I + i]
+            else:
+                self.pc -= 2
 
         else:
             print("Opcode - {0} - not found".format(hex(self.opcode)))
@@ -274,10 +285,10 @@ class Chip8:
 
         current_time = time()
         if current_time - self.prev_time >= 1.0 / 60:
-            if self.delay_timer >= 0:
+            if self.delay_timer > 0:
                 self.delay_timer -= 1
 
-            if self.sound_timer >= 0:
+            if self.sound_timer > 0:
                 sys.stdout.write("\a")  # ASCII Bell
                 self.sound_timer -= 1
 

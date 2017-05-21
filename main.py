@@ -32,10 +32,10 @@ def main(program):
     while True:
         chip_8.emulateCycle()
         if chip_8.draw_flag:
-            draw_graphics(screens, colours, chip_8, width, height)
+            drawGraphics(screen, colours, chip_8, width, height)
 
         allEvents = pygame.event.get()
-        key_events(events, keys, chip_8)
+        key_events(allEvents, keys, chip_8)
 
 
 def initGraphics(screen):
@@ -48,8 +48,11 @@ def drawGraphics(screen, colors, chip_8, width, height):
         for y in range(0, height):
             # Actual window size upscaled 10x
             rect = Rect(x * 10, y * 10, 10, 10)
-            colorIndex = chip8.graphics[x + (y * width)]
+            colorIndex = chip_8.graphics[x + (y * width)]
             screen.fill(colors[colorIndex], rect)
+
+            # screen.fill(colors[chip_8.graphics[x + (y * width)]],
+            #             Rect(x * 10, y * 10, 10, 10))
 
     pygame.display.flip()  # Update screen
     chip_8.draw_flag = False
@@ -62,9 +65,11 @@ def key_events(events, keys, chip_8):
             key_event = 1
         elif event.type == pygame.KEYUP:
             key_event = 0
+        elif event.type == pygame.QUIT:
+            sys.exit(0)
 
-        if key_event >= 0:
-            if key.event in keys:
+        if key_event == 0 or key_event == 1:
+            if event.key in keys:
                 # Get location of key in keys array
                 keyIndex = keys.index(event.key)
                 chip_8.keys[keyIndex] = key_event
