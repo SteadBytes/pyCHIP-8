@@ -33,12 +33,13 @@ class Chip8:
         I = 0  # Index register
         sp = 0  # Stack pointer
 
-        # Clear display, stack, register and memory
+        # Clear display, stack, register, memory and keys
         self.graphics = [0] * pixels
         self.stack = []
         self.V = [0] * 16  # Registers
-        self.I = 0  # Index Register
+        self.I = 0  # Address/Index Register
         self.memory = [0] * 4096
+        self.keys = [0] * 16  # CHIP-8 has 16key hex keyboard input
 
         # Reset timers
         self.delay_timer = 0
@@ -186,12 +187,84 @@ class Chip8:
             # Draws sprite at coord(VX,VY) width=8 height=N
             # VF set to 1 if any screen pixels are flipped from set->unset
             # VF set to 0 if not
+            x_loc = vx
+            y_loc = vy
+            height = self.opcode & 0x000F
+            self.V[0xF] = 0
+            pixel = 0
+            for y in range(0, height):
+                pixel = self.memory[self.I + y]
+                for x in range(0, 8):  # sprites are 8px wide
+                    if pixel & (0x80 >> x) != 0 and not(y + y_loc >= 32 or x + x_loc >= 64):
+                        if self.graphics[i] == 1:
+                            self.V[0xf] = 1
+                        self.graphics[i] ^= 1
+            self.draw_flag = True
+
+        elif(self.opcode & 0xF000 == 0xE000):  # 0xE---
+            first_two_bits = self.opcode & 0x00FF
+
+            if(first_two_bits == 0x009E):  # 0xEX9E: Skip next inst if key in VX pressed
+                key = self.V[vx]
+                if self.keys[key] == 1:
+                    self.pc += 2
+
+            elif(first_two_bits == 0x00A1):  # 0xEXA1 Skip next inst if key in VX not pressed
+                key = self.V[vx]
+                if self.keys[key] == 0:
+                    self.pc += 2
+
+        elif(self.opcode & 0xF000 == 0xF000):  # 0xF---
+            first_two_bits = self.opcode & 0x00FF
+
+            if(first_two_bits == 0x0007):  # 0xFX07: Sets VX to val of delay timer
+                self.V[vx] = self.delay_timer
+
+            if(first_two_bits == 0x000A):  # 0xFX0A: Key press awaited then stored in VX
+                key = -1
+                for i in range(len(self.keys)):
+                    if self.keys[i] == 1:
+                        key = i
+                        break
+                if key >= 0:
+                    self.V[vx] = key
+                else:
+                    self.pc -= 2
+            if(first_two_bits == 0x0015):  # 0xFX15: Sets delay timer to VX
+                self.delay_timer = self.V[vx]
+            if(first_two_bits == 0x0018):  # 0xFX18: Sets sound timer to VX
+                self.sound_timer = self.V[vx]
+            if(first_two_bits == 0x001E):  # 0xFX1E: Adds VX to I
+                self.I += self.V[vx]
+            if(first_two_bits == 0x0029):  # 0xFX29
+                #: Sets I to loc of sprite for character in VX (0-F character hex, 4x5 font)
+                self.I = self.V[vx] * 5  # Sprites are 5 bytes long
+            if(first_two_bits == 0x0033):  # 0xFX33:Stores binary coded decimal representation of VX
+                # Most significant digits at addr in I (hundreds)
+                # Middle digit at addr in I+1 (tens)
+                # Least significant digit at addr I+2 (ones)
+
+                self.memory[I] = vx / 100
+                self.memory[I + 1] = (vx / 10) % 10
+                self.memory[I + 2] = (vx % 100) % 10
+
+            if(first_two_bits == 0x0055):  # 0xFX55
+                # Stores V0 to VX (incl VX) in memory starting at addr I
+
+                for i in range(0, vx + 1):
+                    self.memory[self.I + i] = self.V[i]
+
+            if(first_two_bits == 0x0065):  # 0xFX65
+                # Fill V0 to VX(incl VX)w/values from memory starting at addr I
+
+                for i in range(0, vx + 1):
+                    self.V[i] = self.memory[self.I + i]
 
         else:
             print("Opcode - {0} - not found".format(hex(self.opcode)))
             self.pc -= 2
 
-        # Next instruction starts 2 locations after first (1 byte each loc)
+            # Next instruction starts 2 locations after first (1 byte each loc)
         self.pc += 2
 
         # Update Timers
