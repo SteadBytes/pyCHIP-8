@@ -1,6 +1,9 @@
 # pyCHIP-8
 COSMAC ELF CHIP-8 interpreter emulator for Python3
 
+Space Invaders:
+
+![Space Invaders](https://user-images.githubusercontent.com/14834132/27195356-5350de9e-51fe-11e7-94d5-4bb980ff2fbc.png "Space Invaders on pyCHIP-8")
 ## Usage
 Pass binary ROM to run as first argument in terminal:
  `$ python main.py "path_to_ROM"`
